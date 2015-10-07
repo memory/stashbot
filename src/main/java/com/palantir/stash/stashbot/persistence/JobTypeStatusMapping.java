@@ -39,7 +39,7 @@ public interface JobTypeStatusMapping extends Entity {
 
     @Accessor("IS_ENABLED")
     @NotNull
-    @Default("true")
+    @Default("false")
     public Boolean getIsEnabled();
 
     @Mutator("IS_ENABLED")

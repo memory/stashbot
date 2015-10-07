@@ -39,31 +39,31 @@ public interface RepositoryConfiguration extends Entity {
     public void setCiEnabled(Boolean url);
 
     @NotNull
-    @Default("empty")
+    @Default("refs/heads/master")
     public String getPublishBranchRegex();
 
     public void setPublishBranchRegex(String publishBranchRegex);
 
     @NotNull
-    @Default("/bin/true")
+    @Default("/usr/local/bin/badger.py scripts/stashbot/publish.yml")
     public String getPublishBuildCommand();
 
     public void setPublishBuildCommand(String publishBuildCommand);
 
     @NotNull
-    @Default("empty")
+    @Default("refs/heads/.*")
     public String getVerifyBranchRegex();
 
     public void setVerifyBranchRegex(String verifyBranchRegex);
 
     @NotNull
-    @Default("/bin/true")
+    @Default("/usr/local/bin/badger.py scripts/stashbot/verify.yml")
     public String getVerifyBuildCommand();
 
     public void setVerifyBuildCommand(String verifyBuildCommand);
 
     @NotNull
-    @Default("/bin/true")
+    @Default("/bin/echo you have not configured a prebuild step")
     public String getPrebuildCommand();
 
     public void setPrebuildCommand(String prebuildCommand);
@@ -76,25 +76,25 @@ public interface RepositoryConfiguration extends Entity {
 
     // Labels
     @NotNull
-    @Default("false")
+    @Default("true")
     public Boolean getVerifyPinned();
 
     public void setVerifyPinned(Boolean isPinned);
 
     @NotNull
-    @Default("N/A")
+    @Default("docker")
     public String getVerifyLabel();
 
     public void setVerifyLabel(String label);
 
     @NotNull
-    @Default("false")
+    @Default("true")
     public Boolean getPublishPinned();
 
     public void setPublishPinned(Boolean isPinned);
 
     @NotNull
-    @Default("N/A")
+    @Default("docker")
     public String getPublishLabel();
 
     public void setPublishLabel(String label);
@@ -178,7 +178,7 @@ public interface RepositoryConfiguration extends Entity {
     public void setStrictVerifyMode(Boolean strictVerifyMode);
 
     @NotNull
-    @Default("false")
+    @Default("true")
     @Accessor("TIMESTAMPS_ENABLED")
     public Boolean getTimestampJobOutputEnabled();
 
@@ -202,7 +202,7 @@ public interface RepositoryConfiguration extends Entity {
     public void setBuildTimeout(Integer buildTimeout);
 
     @NotNull
-    @Default("false")
+    @Default("true")
     @Accessor("ANSICOLOR_ENABLED")
     public Boolean getAnsiColorJobOutputEnabled();
 
