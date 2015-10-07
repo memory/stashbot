@@ -31,13 +31,13 @@ public interface RepositoryConfiguration extends Entity {
     public void setRepoId(Integer id);
 
     @NotNull
-    @Default("false")
+    @Default("true")
     public Boolean getCiEnabled();
 
     public void setCiEnabled(Boolean url);
 
     @NotNull
-    @Default("empty")
+    @Default("refs/heads/master")
     public String getPublishBranchRegex();
 
     public void setPublishBranchRegex(String publishBranchRegex);
@@ -49,19 +49,19 @@ public interface RepositoryConfiguration extends Entity {
     public void setPublishBuildCommand(String publishBuildCommand);
 
     @NotNull
-    @Default("empty")
+    @Default("refs/heads/.*")
     public String getVerifyBranchRegex();
 
     public void setVerifyBranchRegex(String verifyBranchRegex);
 
     @NotNull
-    @Default("/bin/true")
+    @Default("/usr/local/bin/badger.py stashbot/test.yml")
     public String getVerifyBuildCommand();
 
     public void setVerifyBuildCommand(String verifyBuildCommand);
 
     @NotNull
-    @Default("/bin/true")
+    @Default("/bin/echo you have not configured a publish build")
     public String getPrebuildCommand();
 
     public void setPrebuildCommand(String prebuildCommand);
@@ -74,25 +74,25 @@ public interface RepositoryConfiguration extends Entity {
 
     // Labels
     @NotNull
-    @Default("false")
+    @Default("true")
     public Boolean getVerifyPinned();
 
     public void setVerifyPinned(Boolean isPinned);
 
     @NotNull
-    @Default("N/A")
+    @Default("docker")
     public String getVerifyLabel();
 
     public void setVerifyLabel(String label);
 
     @NotNull
-    @Default("false")
+    @Default("true")
     public Boolean getPublishPinned();
 
     public void setPublishPinned(Boolean isPinned);
 
     @NotNull
-    @Default("N/A")
+    @Default("docker")
     public String getPublishLabel();
 
     public void setPublishLabel(String label);
