@@ -155,8 +155,9 @@ public class JenkinsManagerTest {
         Mockito.when(
             jenkinsClientManager.getJenkinsServer(
                 Mockito.any(JenkinsServerConfiguration.class),
-                Mockito.any(RepositoryConfiguration.class)))
-            .thenReturn(jenkinsServer);
+						Mockito.any(RepositoryConfiguration.class),
+						Mockito.any(Repository.class))).thenReturn(
+				jenkinsServer);
 
         jtf = new MockJobTemplateFactory(jtm);
         jtf.generateDefaultsForRepo(repo, rc);
@@ -242,7 +243,7 @@ public class JenkinsManagerTest {
 
         JobTemplate jt = jtm.getDefaultVerifyJob();
 
-        String jobName = jt.getBuildNameFor(repo);
+        String jobName = jt.getBuildNameFor(repo, jsc);
         Job existingJob = Mockito.mock(Job.class);
         Mockito.when(existingJob.getName()).thenReturn(jobName);
         Map<String, Job> jobMap = new HashMap<String, Job>();
@@ -281,7 +282,7 @@ public class JenkinsManagerTest {
 
         for (JobTemplate t : templates) {
             Mockito.verify(jenkinsServer).createJob(
-                Mockito.eq(t.getBuildNameFor(repo)), Mockito.anyString(), Mockito.eq(false));
+                Mockito.eq(t.getBuildNameFor(repo, jsc)), Mockito.anyString(), Mockito.eq(false));
         }
     }
 
@@ -293,7 +294,7 @@ public class JenkinsManagerTest {
         jenkinsManager.updateRepo(repo);
 
         Mockito.verify(jenkinsServer, Mockito.never()).createJob(
-            Mockito.anyString(), Mockito.anyString());
+            Mockito.anyString(), Mockito.anyString(), Mockito.eq(false));
     }
 
     @Test
@@ -301,7 +302,9 @@ public class JenkinsManagerTest {
 
         JobTemplate jt = jtm.getDefaultVerifyJob();
         HashMap<String, Job> jobs = Maps.newHashMap();
-        jobs.put(jt.getBuildNameFor(repo), new Job()); // update job logic requires the job be there already
+        jobs.put(jt.getBuildNameFor(repo, jsc), new Job()); // update job logic
+		// requires the job be
+		// there already
 
         Mockito.when(rc.getPreserveJenkinsJobConfig()).thenReturn(false);
         Mockito.when(jenkinsServer.getJobs()).thenReturn(jobs);
@@ -316,14 +319,17 @@ public class JenkinsManagerTest {
 
         JobTemplate jt = jtm.getDefaultVerifyJob();
         HashMap<String, Job> jobs = Maps.newHashMap();
-        jobs.put(jt.getBuildNameFor(repo), new Job()); // update job logic requires the job be there already
+        jobs.put(jt.getBuildNameFor(repo, jsc), new Job()); // update job logic
+		// requires the job be
+		// there already
 
         Mockito.when(rc.getPreserveJenkinsJobConfig()).thenReturn(true);
         Mockito.when(jenkinsServer.getJobs()).thenReturn(jobs);
 
         jenkinsManager.updateJob(repo, jt);
 
-        Mockito.verify(jenkinsServer, Mockito.never()).updateJob(Mockito.anyString(), Mockito.anyString());
+		Mockito.verify(jenkinsServer, Mockito.never()).updateJob(
+				Mockito.anyString(), Mockito.anyString());
     }
 
     @Test
@@ -332,7 +338,7 @@ public class JenkinsManagerTest {
         Mockito.when(jenkinsServer.runScript(GET_GROOVY_SCRIPT)).thenReturn("Result: not found");
         Mockito.when(jenkinsServer.runScript(CREATE_GROOVY_SCRIPT)).thenReturn("Result: " + ID);
 
-        jenkinsManager.ensureCredentialExists(jsc, rc);
+        jenkinsManager.ensureCredentialExists(jsc, rc, repo);
 
         // capture the uuid when it is rendered - then use it in the Answer() above
         Mockito.verify(velocityContext).put(Mockito.eq("id"), Mockito.anyString());
@@ -348,7 +354,7 @@ public class JenkinsManagerTest {
 
         Mockito.when(jenkinsServer.runScript(GET_GROOVY_SCRIPT)).thenReturn("Result: " + ID);
 
-        jenkinsManager.ensureCredentialExists(jsc, rc);
+        jenkinsManager.ensureCredentialExists(jsc, rc, repo);
 
         Mockito.verify(getTemplate).merge(Mockito.eq(velocityContext), Mockito.any(StringWriter.class));
         Mockito.verify(jenkinsServer).runScript(GET_GROOVY_SCRIPT);
