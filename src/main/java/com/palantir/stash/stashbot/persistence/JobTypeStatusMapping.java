@@ -39,6 +39,8 @@ public interface JobTypeStatusMapping extends Entity {
 
     @Accessor("IS_ENABLED")
     @NotNull
+    // not actually honored on automatically vivified objects; see
+    // com.palantir.stash.stashbot.config.ConfigurationPersistenceImpl.RepositoryConfiguration
     @Default("false")
     public Boolean getIsEnabled();
 
