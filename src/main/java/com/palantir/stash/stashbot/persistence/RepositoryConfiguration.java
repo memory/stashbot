@@ -186,7 +186,7 @@ public interface RepositoryConfiguration extends Entity {
     public void setTimestampJobOutputEnabled(Boolean timestampJobOutputEnabled);
 
     @NotNull
-    @Default("false")
+    @Default("true")
     @Accessor("BUILD_TIMEOUT_ENABLED")
     public Boolean getBuildTimeoutEnabled();
 
@@ -194,7 +194,7 @@ public interface RepositoryConfiguration extends Entity {
     public void setBuildTimeoutEnabled(Boolean buildTimeoutEnabled);
 
     @NotNull
-    @Default("180")
+    @Default("120")
     @Accessor("BUILD_TIMEOUT")
     public Integer getBuildTimeout();
 
