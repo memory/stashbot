@@ -21,9 +21,9 @@ import java.util.Map;
 
 import org.slf4j.Logger;
 
+import com.atlassian.bitbucket.commit.Commit;
+import com.atlassian.bitbucket.repository.Repository;
 import com.atlassian.plugin.web.model.WebPanel;
-import com.atlassian.stash.content.Changeset;
-import com.atlassian.stash.repository.Repository;
 import com.palantir.stash.stashbot.config.ConfigurationPersistenceService;
 import com.palantir.stash.stashbot.jobtemplate.JobType;
 import com.palantir.stash.stashbot.logger.PluginLoggerFactory;
@@ -68,11 +68,12 @@ public class RetriggerLinkWebPanel implements WebPanel {
                 return;
             }
 
-            Changeset changeset = (Changeset) context.get("changeset");
+            // XXX: MIGRATION: does this work?
+            Commit commit = (Commit) context.get("commit");
             String url = ub.getJenkinsTriggerUrl(repo, JobType.VERIFY_COMMIT,
-                changeset.getId(), null);
+                commit.getId(), null);
             String pubUrl = ub.getJenkinsTriggerUrl(repo, JobType.PUBLISH,
-                changeset.getId(), null);
+                commit.getId(), null);
             // boy it would be nice if there were a way to do this from context.
             // aslso would be nice to inject this script once at the top somehow
             writer.append("Trigger: ( ");

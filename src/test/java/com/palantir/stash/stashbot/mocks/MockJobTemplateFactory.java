@@ -18,7 +18,7 @@ import java.util.List;
 
 import org.mockito.Mockito;
 
-import com.atlassian.stash.repository.Repository;
+import com.atlassian.bitbucket.repository.Repository;
 import com.google.common.collect.ImmutableList;
 import com.palantir.stash.stashbot.jobtemplate.JobTemplateManager;
 import com.palantir.stash.stashbot.jobtemplate.JobType;
@@ -57,6 +57,7 @@ public class MockJobTemplateFactory {
 
         Mockito.when(template.getName()).thenReturn(jt.toString());
         Mockito.when(template.getBuildNameFor(repo)).thenReturn("somename_" + jt.toString());
+        Mockito.when(template.getPathFor(repo)).thenReturn("foo/bar/somename_" + jt.toString());
         Mockito.when(template.getTemplateFile()).thenReturn("src/test/resources/test-template.vm");
 
         JobMapping jm = Mockito.mock(JobMapping.class);

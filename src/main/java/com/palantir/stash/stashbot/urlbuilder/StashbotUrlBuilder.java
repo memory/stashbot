@@ -17,20 +17,27 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.sql.SQLException;
 
-import com.atlassian.stash.nav.NavBuilder;
-import com.atlassian.stash.pull.PullRequest;
-import com.atlassian.stash.repository.Repository;
-import com.atlassian.stash.repository.RepositoryCloneLinksRequest;
-import com.atlassian.stash.repository.RepositoryService;
+import org.apache.commons.lang3.StringUtils;
+
+import com.atlassian.bitbucket.nav.NavBuilder;
+import com.atlassian.bitbucket.pull.PullRequest;
+import com.atlassian.bitbucket.repository.Repository;
+import com.atlassian.bitbucket.repository.RepositoryCloneLinksRequest;
+import com.atlassian.bitbucket.repository.RepositoryService;
+import com.palantir.stash.stashbot.config.ConfigurationPersistenceService;
 import com.palantir.stash.stashbot.jobtemplate.JobType;
 import com.palantir.stash.stashbot.persistence.JenkinsServerConfiguration;
+import com.palantir.stash.stashbot.persistence.JobTemplate;
+import com.palantir.stash.stashbot.persistence.RepositoryConfiguration;
 
 public class StashbotUrlBuilder {
 
+    private final ConfigurationPersistenceService cps;
     private final NavBuilder nb;
     private final RepositoryService rs;
 
-    public StashbotUrlBuilder(NavBuilder nb, RepositoryService rs) {
+    public StashbotUrlBuilder(ConfigurationPersistenceService cps, NavBuilder nb, RepositoryService rs) {
+        this.cps = cps;
         this.nb = nb;
         this.rs = rs;
     }
@@ -39,14 +46,14 @@ public class StashbotUrlBuilder {
         String buildHead, PullRequest pullRequest) throws SQLException {
         StringBuffer urlB = new StringBuffer(nb.buildAbsolute());
         urlB.append("/plugins/servlet/stashbot/build-trigger/");
-        urlB.append(repo.getId().toString()).append("/");
+        urlB.append(repo.getId()).append("/");
         urlB.append(jt.toString()).append("/");
         urlB.append(buildHead);
         if (pullRequest != null) {
             urlB.append("/");
-            urlB.append(pullRequest.getToRef().getLatestChangeset());
+            urlB.append(pullRequest.getToRef().getLatestCommit());
             urlB.append("/");
-            urlB.append(pullRequest.getId().toString());
+            urlB.append(pullRequest.getId());
         }
         return urlB.toString();
     }
@@ -92,8 +99,8 @@ public class StashbotUrlBuilder {
         return url;
     }
 
-    public String buildStashCommitUrl(Repository repo, String changeset) {
-        return nb.repo(repo).changeset(changeset).buildAbsolute();
+    public String buildStashCommitUrl(Repository repo, String commit) {
+        return nb.repo(repo).commit(commit).buildAbsolute();
     }
 
     private String mask(String str) {
@@ -102,5 +109,36 @@ public class StashbotUrlBuilder {
         } catch (UnsupportedEncodingException e) {
             return str;
         }
+    }
+
+    /* NOTE: elsewhere in JenkinsManager, we generate this URL (when folders are enabled) by fetching the entire folder chain from jenkins.
+     * But in places where we are generating the links only, we don't want to have several server round-trips so we will instead assume it
+     * exists and just create the URL.
+     */
+    public String getJenkinsJobUrl(Repository repo, JobTemplate jt) throws SQLException {
+        RepositoryConfiguration rc = cps.getRepositoryConfigurationForRepository(repo);
+        JenkinsServerConfiguration jsc = cps.getJenkinsServerConfiguration(rc.getJenkinsServerName());
+        String baseUrl = jsc.getUrl();
+        String prefix = "";
+        if (jsc.getFolderSupportEnabled()) {
+            prefix = prefix + jsc.getFolderPrefix();
+        }
+        if (jsc.getUseSubFolders()) {
+            if (!prefix.isEmpty()) {
+                prefix = prefix + "/" + jt.getPathFor(repo);
+            } else {
+                prefix = jt.getPathFor(repo);
+            }
+        }
+        String url = baseUrl;
+        if (!prefix.isEmpty()) {
+            url = url + "/job/" + StringUtils.join(prefix.split("/"), "/job/");
+        }
+        url = url + "/job/" + jt.getBuildNameFor(repo);
+        return url;
+    }
+
+    public String getJenkinsBuildUrl(Repository repo, JobTemplate jt, long buildNumber) throws SQLException {
+        return getJenkinsJobUrl(repo, jt) + "/" + Long.toString(buildNumber);
     }
 }
